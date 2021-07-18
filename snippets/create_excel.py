@@ -1,5 +1,6 @@
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 EXPORT_XLSX = "resources/export.xlsx"
 RETAILER_XLSX = "resources/retailer.xlsx"
@@ -7,11 +8,10 @@ OUTPUT_XLSX = "out/final.xlsx"
 Path(OUTPUT_XLSX).parent.mkdir(exist_ok=True)
 
 
-
 def normalize(frame: pd.DataFrame, main_col: str = "EAN", second_col: str = "IDK") -> pd.DataFrame:
-    return frame \
-        .sort_values(by=[main_col, second_col], ascending=False) \
-        .drop_duplicates(subset=main_col, keep="first")
+    return frame.sort_values(by=[main_col, second_col], ascending=False).drop_duplicates(
+        subset=main_col, keep="first"
+    )
 
 
 def create_url(idk: str, language: str = "de") -> str:
@@ -33,5 +33,5 @@ def write_excel():
     final.to_excel(OUTPUT_XLSX)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     write_excel()

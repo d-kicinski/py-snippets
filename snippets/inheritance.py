@@ -3,7 +3,8 @@ import abc
 
 class Reader(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def read(self) -> str: ...
+    def read(self) -> str:
+        ...
 
 
 class FooReader(Reader):
@@ -22,7 +23,8 @@ assert isinstance(BarReader(), Reader)
 
 
 class Dog:
-    def bork(self) -> None: ...
+    def bork(self) -> None:
+        ...
 
 
 dog = Dog()
