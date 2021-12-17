@@ -31,7 +31,11 @@ class RNNCell:
     def forward(self, inputs: int, prev_hs: ArrayLike):
         self.xs = np.zeros((self.vocab_size, 1))  # encode in 1-of-k representation
         self.xs[inputs] = 1
-        self.hs = np.tanh(np.dot(self.p.Wxh, self.xs) + np.dot(self.p.Whh, prev_hs) + self.p.bh)  #
+        x1 = np.dot(self.p.Wxh, self.xs)
+        x2 = np.dot(self.p.Whh, prev_hs)
+        x3 = x2 + self.p.bh
+        x4 = x1 + x3
+        self.hs = np.tanh(x4)
         # hidden state
         self.ys = np.dot(self.p.Why, self.hs) + self.p.by  # unnormalized log probabilities for
         # next chars
@@ -80,7 +84,7 @@ class RNN:
 
         self._init_state = np.zeros_like(self.cells[0].hs)
 
-    def forward(self, inputs: List[int], targets: List[int], hprev: ArrayLike):
+    def forward(self, inputs: List[int], targets: List[int], hprev: ArrayLike) -> float:
         self._init_state = np.copy(hprev)
         prev_state = hprev
         loss: float = 0.0
@@ -93,14 +97,14 @@ class RNN:
 
         return loss
 
-    def backward(self, targets):
+    def backward(self, targets) -> None:
         next_d_hs = np.zeros_like(self.cells[0].hs)
         for i in reversed(range(self.sequence_length)):
             cell = self.cells[i]
             prev_hs = self._init_state if i == 0 else self.cells[i - 1].hs
             next_d_hs = cell.backward(targets[i], prev_hs, next_d_hs)
 
-    def sample(self, idx: int, hidden_init: ArrayLike, sample_size: int):
+    def sample(self, idx: int, hidden_init: ArrayLike, sample_size: int) -> List[int]:
         """ Sample a sequence of integers from the model """
         cell = RNNCell(self.p, self.d_p, self.vocab_size)
         indices: List[int] = [idx]
@@ -188,7 +192,7 @@ def train_rnn():
         optimizer.update()
 
         init_h = np.copy(rnn.cells[-1].hs)
-        rnn.reset_states()
+        # rnn.reset_states()
         optimizer.zero_grads()
         smooth_loss = smooth_loss * 0.999 + loss * 0.001
         if n % 100 == 0:
